@@ -1,3 +1,4 @@
+# --- Existing UE type ---
 type UniteEnseignement {
     code: Int
     domaine: String
@@ -5,22 +6,62 @@ type UniteEnseignement {
     credits: Int
     semestre: Int
 }
-type QueryResolver {
-    allUEs: [UniteEnseignement]
+
+# --- Module side ---
+enum TypeModule {
+    CM
+    TD
+    TP
 }
 
+type Module {
+    matricule: ID!
+    nom: String!
+    coefficient: Int!
+    volumeHoraire: Int!
+    type: TypeModule!
+}
 
-type MutationResolver {
+# Optional: return the updated/created object instead of Boolean
+# but here I’ll stick to Boolean to match your business methods.
+
+type Query {
+
+    allUEs: [UniteEnseignement]
+
+    # Module queries (match your QueryModuleResolver)
+    allModules: [Module]!
+    byTypeModule(type: TypeModule!): [Module]!
+}
+
+type Mutation {
+    # UE mutation you had (rename root to Mutation)
     addUniteEnseignement(
         code: Int!
         domaine: String!
         responsable: String!
         credits: Int!
         semestre: Int!
-    ): Boolean
+    ): Boolean!
 
-}
-schema {
-    query: QueryResolver
-    mutation: MutationResolver
+    # Module mutations (match your MutationModuleResolver)
+    addModule(
+        matricule: ID!
+        nom: String!
+        coefficient: Int!
+        volumeHoraire: Int!
+        type: TypeModule!
+    ): Boolean!
+
+    deleteModule(matricule: ID!): Boolean!
+
+    # If you want to allow changing the matricule, keep both args:
+    updateModule(
+        matricule: ID!
+        matricule2: ID!
+        nom: String!
+        coefficient: Int!
+        volumeHoraire: Int!
+        type: TypeModule!
+    ): Boolean!
 }
